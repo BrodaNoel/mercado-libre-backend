@@ -1,28 +1,41 @@
 const utils = require('../../libs/utils.js');
 const config = require('../../config.js');
 
-module.exports = (req, res) => {
-  fetch(
-    `${config.baseUrl}/items/${req.params.id}`,
-    { method: 'GET' }
-  ).then(response => response.json())
-  .then(response => {
-    let item = {
-      id: response.id,
-      title: response.title,
-      price: {
-        currency: response.currency_id,
-        amount: parseInt(response.price),
-        decimals: utils.getDecimals(response.price)
-      },
-      picture: response.pictures[0],
-      condition: response.condition,
-      free_shipping: !!response.shipping.free_shipping,
-      sold_quantity: response.sold_quantity
-    };
+/**
+ * This object contains the functions that will return the Promise to get the item data
+ * @type {Object}
+ */
+const get = {
+  baseData: id => fetch(`${config.baseUrl}/items/${id}`).then(r => r.json()),
+  description: id => fetch(`${config.baseUrl}/items/${id}/description`).then(r => r.json())
+};
 
-    // TODO: Implement it
-    item.description = 'pending...';
+module.exports = (req, res) => {
+  // Create an array with promises to get the basic data and the description data.
+  const fullData = [
+    get.baseData(req.params.id),
+    get.description(req.params.id)
+  ];
+
+  // After both promises are solved, create the item object, set the description and return it
+  Promise.all(fullData).then(responses => {
+    const baseData = responses[0];
+    const description = responses[1];
+
+    let item = {
+      id: baseData.id,
+      title: baseData.title,
+      price: {
+        currency: baseData.currency_id,
+        amount: parseInt(baseData.price),
+        decimals: utils.getDecimals(baseData.price)
+      },
+      picture: baseData.pictures[0].url,
+      condition: baseData.condition,
+      free_shipping: !!baseData.shipping.free_shipping,
+      sold_quantity: baseData.sold_quantity,
+      description: description.plain_text
+    };
 
     res.send({
       status: 'ok',
