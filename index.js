@@ -1,3 +1,4 @@
+// Add promise and fetch support
 require('es6-promise').polyfill();
 require('isomorphic-fetch');
 const express = require('express');
