@@ -17,7 +17,8 @@ module.exports = (req, res) => {
       },
       picture: item.thumbnail,
       condition: item.condition,
-      free_shipping: !!item.shipping.free_shipping
+      free_shipping: !!item.shipping.free_shipping,
+      address: item.address
     }));
 
     res.send({
