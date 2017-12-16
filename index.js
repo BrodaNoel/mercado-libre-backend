@@ -2,9 +2,15 @@
 require('es6-promise').polyfill();
 require('isomorphic-fetch');
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const config = require('./config.js');
 const items = require('./api/items');
+
+/**
+ * Make this server acompatible to accept calls from any protocol or domain
+ */
+app.use(cors());
 
 /**
  * This endpoint retrieve the list of elements that were retrieved by the
