@@ -24,6 +24,10 @@ module.exports = (req, res) => {
     res.send({
       status: 'ok',
       data: {
+        author: {
+          name: 'Noel',
+          lastname: 'Broda'
+        },
         items
       }
     });

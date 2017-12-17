@@ -7,7 +7,8 @@ const config = require('../../config.js');
  */
 const get = {
   baseData: id => fetch(`${config.baseUrl}/items/${id}`).then(r => r.json()),
-  description: id => fetch(`${config.baseUrl}/items/${id}/description`).then(r => r.json())
+  description: id => fetch(`${config.baseUrl}/items/${id}/description`).then(r => r.json()),
+  category: id => fetch(`${config.baseUrl}/categories/${id}`).then(r => r.json())
 };
 
 module.exports = (req, res) => {
@@ -22,26 +23,33 @@ module.exports = (req, res) => {
     const baseData = responses[0];
     const description = responses[1];
 
-    let item = {
-      id: baseData.id,
-      title: baseData.title,
-      price: {
-        currency: baseData.currency_id,
-        amount: parseInt(baseData.price),
-        decimals: utils.getDecimals(baseData.price)
-      },
-      picture: baseData.pictures[0].url,
-      condition: baseData.condition,
-      free_shipping: !!baseData.shipping.free_shipping,
-      sold_quantity: baseData.sold_quantity,
-      description: description.plain_text
-    };
+    get.category(baseData.category_id).then((category) => {
+      let item = {
+        id: baseData.id,
+        title: baseData.title,
+        price: {
+          currency: baseData.currency_id,
+          amount: parseInt(baseData.price),
+          decimals: utils.getDecimals(baseData.price)
+        },
+        picture: baseData.pictures[0].url,
+        condition: baseData.condition,
+        free_shipping: !!baseData.shipping.free_shipping,
+        sold_quantity: baseData.sold_quantity,
+        description: description.plain_text,
+        categories: category.path_from_root.map((item) => item.name)
+      };
 
-    res.send({
-      status: 'ok',
-      data: {
-        item: item
-      }
+      res.send({
+        status: 'ok',
+        data: {
+          author: {
+            name: 'Noel',
+            lastname: 'Broda'
+          },
+          item: item
+        }
+      });
     });
   });
 };
