@@ -7,7 +7,7 @@ module.exports = (req, res) => {
     { method: 'GET' }
   ).then(response => response.json())
   .then(response => {
-    const items = response.results.map(item => ({
+    const items = response.results.slice(0, 4).map(item => ({
       id: item.id,
       title: item.title,
       price: {
